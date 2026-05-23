@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Clone the repository code into the runner
+    # 1. Clone the repository code into the runner environment
     - name: Checkout Repository
       uses: actions/checkout@v4
 
@@ -20,15 +20,23 @@ jobs:
         java-version: '17'
         cache: 'gradle'
 
-    # 3. Setup and configure Gradle build environment automatically
+    # 3. Generate missing Gradle Wrapper files directly on the server
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper
+
+    # 4. Setup and configure the Gradle build environment
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    # 4. Compile the project and generate the debug APK
+    # 5. Grant executable permission to the generated gradlew file
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # 6. Compile the project and build the debug APK
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
-    # 5. Upload the generated APK file so you can download it directly to your phone
+    # 7. Upload the generated APK artifact so you can download it to your mobile
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
